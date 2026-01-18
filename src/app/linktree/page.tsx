@@ -87,13 +87,16 @@ export default function Linktree() {
         body: JSON.stringify({
           action,
           link: formData,
+          id: editingLink?.id,
           oldName: editingLink?.name
         })
       })
 
       if (res.ok) {
         const result = await res.json()
-        setLinks(result.linktree)
+        if (result.linktree) {
+          setLinks(result.linktree)
+        }
         setIsFormModalOpen(false)
         alert(action === 'add' ? '링크가 추가되었습니다.' : '링크가 수정되었습니다.')
       }
@@ -109,13 +112,16 @@ export default function Linktree() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'delete',
+          id: linkToDelete.id,
           oldName: linkToDelete.name
         })
       })
 
       if (res.ok) {
         const result = await res.json()
-        setLinks(result.linktree)
+        if (result.linktree) {
+          setLinks(result.linktree)
+        }
         setIsDeleteModalOpen(false)
         alert('삭제되었습니다.')
       }
