@@ -5,7 +5,7 @@
 
 .sectionTitleContainer {
   width: 100%;
-  text-align: right;
+  text-align: left;
   margin-bottom: 2rem;
 }
 
@@ -71,7 +71,8 @@
 
 .previewDate {
   font-size: 0.8rem;
-  opacity: 0.8;
+  color: white;
+  opacity: 0.9;
   margin-top: 0.25rem;
 }
 
