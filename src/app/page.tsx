@@ -18,7 +18,7 @@ async function getActivities(): Promise<Activity[]> {
   const { data, error } = await supabase
     .from('activities')
     .select('*')
-    .order('id', { ascending: false })
+    .order('date', { ascending: false })
   
   if (error) {
     console.error('Failed to fetch activities:', error)
@@ -36,7 +36,9 @@ export default async function Home() {
       <Hero />
       <section className={styles.previewSection}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>latest news</h2>
+          <div className={styles.sectionTitleContainer}>
+            <span className={styles.sectionTag}>latest news</span>
+          </div>
           <div className={styles.previewGrid}>
             {previewActivities.map((activity: Activity) => (
               <Link key={activity.id} href={`/archive/records/${activity.id}`} className={styles.previewItem}>
@@ -61,7 +63,7 @@ export default async function Home() {
           </div>
           <div className={styles.viewAllContainer}>
             <Link href="/archive/records" className={styles.viewAllLink}>
-              모든 작품 보기 →
+              모든 활동 보기 →
             </Link>
           </div>
         </div>

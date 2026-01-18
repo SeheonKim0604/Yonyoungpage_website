@@ -3,13 +3,22 @@
   background-color: white;
 }
 
-.sectionTitle {
-  text-align: left;
-  margin-bottom: 3rem;
-  font-family: var(--font-primary);
+.sectionTitleContainer {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 2rem;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.3rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 1.5rem;
 }
 
 .previewGrid {
@@ -73,19 +82,18 @@
 
 .viewAllLink {
   display: inline-block;
-  padding: 1rem 2rem;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 1rem 2.5rem;
+  border: 1px solid #333;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
   letter-spacing: 0.1em;
   transition: all 0.3s ease;
 }
 
 .viewAllLink:hover {
-  background-color: var(--primary-color);
+  background-color: #333;
   color: white;
-  opacity: 1;
 }
 
 @media (max-width: 1024px) {
