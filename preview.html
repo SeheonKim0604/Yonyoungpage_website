@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연영회 - 사진 동아리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2C3357;
+            --background-color: #EFF0F0;
+            --secondary-color: #BFBFBF;
+            --text-color: #2C3357;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* 네비게이션 */
+        .navigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: rgba(239, 240, 240, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-menu a:hover {
+            opacity: 0.7;
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2C3357 0%, #1a2340 100%);
+            color: white;
+            text-align: center;
+            margin-top: 70px;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* 미리보기 섹션 */
+        .preview-section {
+            padding: 4rem 0;
+            background-color: white;
+        }
+
+        .preview-section h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .preview-item {
+            aspect-ratio: 4 / 3;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .view-all-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .view-all-link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* 페이지 섹션 */
+        .page-section {
+            padding: 4rem 0;
+            margin-top: 70px;
+        }
+
+        .page-header {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            border-bottom: 1px solid var(--secondary-color);
+            margin-bottom: 4rem;
+        }
+
+        .page-header h1 {
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .page-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box h2 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* 갤러리 뷰 */
+        .gallery-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .gallery-item {
+            aspect-ratio: 4 / 3;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <a href="#home" class="logo">연영회</a>
+            <ul class="nav-menu">
+                <li><a href="#about">ABOUT</a></li>
+                <li><a href="#works">WORKS</a></li>
+                <li><a href="#exhibitions">EXHIBITIONS</a></li>
+                <li><a href="#recruiting">RECRUITING</a></li>
+                <li><a href="#donate">DONATE US</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 홈페이지 -->
+    <section id="home">
+        <div class="hero">
+            <div class="hero-content">
+                <h1>연영회</h1>
+                <p>사진으로 세상을 기록합니다</p>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="container">
+                <h2>최신 작품</h2>
+                <div class="preview-grid">
+                    <div class="preview-item">이미지 1</div>
+                    <div class="preview-item">이미지 2</div>
+                    <div class="preview-item">이미지 3</div>
+                    <div class="preview-item">이미지 4</div>
+                    <div class="preview-item">이미지 5</div>
+                    <div class="preview-item">이미지 6</div>
+                </div>
+                <div class="view-all-container">
+                    <a href="#works" class="view-all-link">모든 작품 보기 →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT 페이지 -->
+    <section id="about" class="page-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>ABOUT</h1>
+                <p class="subtitle">연영회에 대해</p>
+            </div>
+            <div class="page-content">
+                <div class="info-box">
+                    <h2>연영회 소개</h2>
+                    <p>연영회는 사진을 통해 세상을 기록하고 표현하는 동아리입니다. 우리는 다양한 주제와 스타일로 사진을 찍으며, 서로의 작품을 공유하고 함께 성장해 나갑니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKS 페이지 -->
+    <section id="works" class="page-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>WORKS</h1>
+                <p class="subtitle">연영회 작품 갤러리</p>
+            </div>
+            <div class="gallery-view">
+                <div class="gallery-item">작품 1</div>
+                <div class="gallery-item">작품 2</div>
+                <div class="gallery-item">작품 3</div>
+                <div class="gallery-item">작품 4</div>
+                <div class="gallery-item">작품 5</div>
+                <div class="gallery-item">작품 6</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXHIBITIONS 페이지 -->
+    <section id="exhibitions" class="page-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>EXHIBITIONS</h1>
+                <p class="subtitle">연영회 전시회</p>
+            </div>
+            <div class="page-content">
+                <div class="info-box">
+                    <h2>2024 연영회 전시</h2>
+                    <p><strong>일정:</strong> 2024.12.01 - 2024.12.31</p>
+                    <p><strong>장소:</strong> 갤러리 이름</p>
+                    <p>전시 설명입니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECRUITING 페이지 -->
+    <section id="recruiting" class="page-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>RECRUITING</h1>
+                <p class="subtitle">연영회 모집 안내</p>
+            </div>
+            <div class="page-content">
+                <div class="info-box">
+                    <h2>모집 안내</h2>
+                    <p>연영회는 사진에 관심이 있는 모든 분들을 환영합니다. 경력과 상관없이 열정과 열의가 있는 분이라면 누구나 지원 가능합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DONATE 페이지 -->
+    <section id="donate" class="page-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>DONATE US</h1>
+                <p class="subtitle">연영회 후원 안내</p>
+            </div>
+            <div class="page-content">
+                <div class="info-box">
+                    <h2>후원 안내</h2>
+                    <p>연영회는 여러분의 후원으로 더 나은 활동을 이어갈 수 있습니다. 후원금은 전시회 개최, 장비 구매, 워크샵 운영 등에 사용됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
