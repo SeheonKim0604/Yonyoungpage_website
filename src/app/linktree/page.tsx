@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import './Linktree.css'
 
+export const dynamic = 'force-dynamic'
+
 export default function Linktree() {
   const [links, setLinks] = useState<any[]>([])
   const [isAdminMode, setIsAdminMode] = useState(false)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +37,10 @@ export async function POST(request: NextRequest) {
         .match(id ? { id } : { name: oldName })
       if (error) throw error
     }
+
+    // Next.js 서버 캐시 강제 무효화
+    revalidatePath('/linktree')
+    revalidatePath('/api/data/linktree')
 
     // 작업 완료 후 최신 전체 리스트 조회
     const { data, error: fetchError } = await supabase
