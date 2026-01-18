@@ -1,19 +1,21 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './UploadModal.css'
 
 interface UploadModalProps {
   onClose: () => void
-  onUpload: (data: { id?: number; title: string; files: File[]; existingImages?: string[]; mainIndex: number; date?: string; location?: string }) => void
+  onUpload: (data: { 
+    id?: number;
+    title: string; 
+    files: File[]; 
+    mainIndex: number; 
+    date?: string; 
+    location?: string;
+    existingImages?: string[];
+  }) => void
   type?: 'gallery' | 'exhibition'
-  initialData?: {
-    id: number
-    title: string
-    date?: string
-    location?: string
-    images: string[]
-  }
+  initialData?: any
 }
 
 export default function UploadModal({ onClose, onUpload, type = 'gallery', initialData }: UploadModalProps) {
@@ -21,19 +23,34 @@ export default function UploadModal({ onClose, onUpload, type = 'gallery', initi
   const [date, setDate] = useState(initialData?.date || '')
   const [location, setLocation] = useState(initialData?.location || '')
   const [files, setFiles] = useState<File[]>([])
-  const [previews, setPreviews] = useState<string[]>(initialData?.images || [])
+  const [previews, setPreviews] = useState<string[]>([])
+  const [existingImages, setExistingImages] = useState<string[]>(initialData?.images || (initialData?.image ? [initialData.image] : []))
   const [mainIndex, setMainIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // 초기 데이터가 변경될 때 상태 업데이트
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || '')
+      setDate(initialData.date || '')
+      setLocation(initialData.location || '')
+      setExistingImages(initialData.images || (initialData.image ? [initialData.image] : []))
+      // 기존 이미지 중 현재 대표 이미지가 몇 번째인지 찾기
+      const currentMain = initialData.image
+      const foundIndex = (initialData.images || []).indexOf(currentMain)
+      setMainIndex(foundIndex >= 0 ? foundIndex : 0)
+    }
+  }, [initialData])
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
-      // 갤러리와 전시 모두 여러 장 지원
       const newFiles = [...files, ...selectedFiles]
       setFiles(newFiles)
-      const newPreviews = [...previews, ...selectedFiles.map(file => URL.createObjectURL(file))]
-      setPreviews(newPreviews)
+      
+      const newPreviews = selectedFiles.map(file => URL.createObjectURL(file))
+      setPreviews([...previews, ...newPreviews])
     }
   }
 
@@ -51,55 +68,61 @@ export default function UploadModal({ onClose, onUpload, type = 'gallery', initi
     setIsDragging(false)
     if (e.dataTransfer.files) {
       const selectedFiles = Array.from(e.dataTransfer.files)
-      // 갤러리와 전시 모두 여러 장 지원
       const newFiles = [...files, ...selectedFiles]
       setFiles(newFiles)
-      const newPreviews = [...previews, ...selectedFiles.map(file => URL.createObjectURL(file))]
-      setPreviews(newPreviews)
+      const newPreviews = selectedFiles.map(file => URL.createObjectURL(file))
+      setPreviews([...previews, ...newPreviews])
     }
   }
 
-  const removeFile = (index: number, e: React.MouseEvent) => {
+  const removeFile = (index: number, isExisting: boolean, e: React.MouseEvent) => {
     e.stopPropagation()
-    // previews는 기존 이미지(string)와 새 이미지(object URL)가 섞여 있음
-    const newPreviews = previews.filter((_, i) => i !== index)
-    
-    // files는 새 이미지만 관리하므로 index를 맞춰야 함
-    // 기존 이미지 개수 계산
-    const initialImagesCount = initialData?.images?.length || 0
-    if (index >= initialImagesCount) {
-      const fileIndex = index - initialImagesCount
-      const newFiles = files.filter((_, i) => i !== fileIndex)
+    if (isExisting) {
+      const newExisting = existingImages.filter((_, i) => i !== index)
+      setExistingImages(newExisting)
+      if (mainIndex === index) setMainIndex(0)
+      else if (mainIndex > index) setMainIndex(mainIndex - 1)
+    } else {
+      const actualIndex = index - existingImages.length
+      const newFiles = files.filter((_, i) => i !== actualIndex)
+      const newPreviews = previews.filter((_, i) => i !== actualIndex)
       setFiles(newFiles)
+      setPreviews(newPreviews)
+      if (mainIndex === index) setMainIndex(0)
+      else if (mainIndex > index) setMainIndex(mainIndex - 1)
     }
-    
-    setPreviews(newPreviews)
-    if (mainIndex === index) setMainIndex(0)
-    else if (mainIndex > index) setMainIndex(mainIndex - 1)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (title && (files.length > 0 || previews.length > 0)) {
-      const existingImages = previews.filter(p => !p.startsWith('blob:'))
-      onUpload({ id: initialData?.id, title, files, existingImages, mainIndex, date, location })
+    if (isFormValid()) {
+      onUpload({ 
+        id: initialData?.id,
+        title, 
+        files, 
+        mainIndex, 
+        date, 
+        location,
+        existingImages 
+      })
       onClose()
     }
   }
 
   const isFormValid = () => {
-    const hasImage = files.length > 0 || previews.length > 0
+    const hasImages = files.length > 0 || existingImages.length > 0
     if (type === 'exhibition') {
-      return title && hasImage && date && location
+      return title && hasImages && date && location
     }
-    // 갤러리(활동 기록)도 제목, 파일, 날짜 권장
-    return title && hasImage && date
+    return title && hasImages && date
   }
+
+  const allImages = [...existingImages, ...previews]
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>{type === 'exhibition' ? (initialData ? '전시 수정' : '새 전시 추가') : (initialData ? '활동 기록 수정' : '새 활동 기록 추가')}</h2>
+        <h2>{initialData ? (type === 'exhibition' ? '전시 정보 수정' : '활동 기록 수정') : (type === 'exhibition' ? '새 전시 추가' : '새 활동 기록 추가')}</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">{type === 'exhibition' ? '전시 제목' : '활동 제목'}</label>
@@ -140,15 +163,15 @@ export default function UploadModal({ onClose, onUpload, type = 'gallery', initi
           )}
 
           <div
-            className={`upload-area ${isDragging ? 'dragging' : ''} ${previews.length > 0 ? 'has-files' : ''}`}
+            className={`upload-area ${isDragging ? 'dragging' : ''} ${allImages.length > 0 ? 'has-files' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            {previews.length > 0 ? (
+            {allImages.length > 0 ? (
               <div className="previews-grid">
-                {previews.map((src, index) => (
+                {allImages.map((src, index) => (
                   <div 
                     key={index} 
                     className={`preview-item ${index === mainIndex ? 'is-main' : ''}`}
@@ -160,7 +183,7 @@ export default function UploadModal({ onClose, onUpload, type = 'gallery', initi
                     <img src={src} alt={`미리보기 ${index + 1}`} />
                     <button 
                       className="remove-file-btn" 
-                      onClick={(e) => removeFile(index, e)}
+                      onClick={(e) => removeFile(index, index < existingImages.length, e)}
                     >
                       ×
                     </button>
@@ -193,7 +216,7 @@ export default function UploadModal({ onClose, onUpload, type = 'gallery', initi
               취소
             </button>
             <button type="submit" className="submit-btn" disabled={!isFormValid()}>
-              {type === 'exhibition' ? '추가' : '업로드'}
+              {initialData ? '수정 완료' : (type === 'exhibition' ? '추가' : '업로드')}
             </button>
           </div>
         </form>
