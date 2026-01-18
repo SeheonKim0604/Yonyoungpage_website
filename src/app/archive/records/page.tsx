@@ -7,6 +7,8 @@ import ImageGrid from '@/components/ImageGrid'
 import UploadModal from '@/components/UploadModal'
 import './Archive.css'
 
+export const dynamic = 'force-dynamic'
+
 export default function Archive() {
   const router = useRouter()
   const [activities, setActivities] = useState<any[]>([])

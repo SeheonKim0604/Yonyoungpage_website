@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import ImageGallery from './ImageGallery'
 import './ImageGrid.css'
@@ -18,45 +18,18 @@ interface ImageGridProps {
   images: ImageItem[]
   onItemClick?: (index: number) => void
   onUpdate?: (updatedImages: any[]) => void
-  onDelete?: (id: number) => void
-  onEdit?: (image: ImageItem) => void
 }
 
-export default function ImageGrid({ images, onItemClick, onUpdate, onDelete, onEdit }: ImageGridProps) {
+export default function ImageGrid({ images, onItemClick, onUpdate }: ImageGridProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editTitle, setEditTitle] = useState('')
-  const [isAdminMode, setIsAdminMode] = useState(false)
-
-  useEffect(() => {
-    // 초기 상태 확인
-    setIsAdminMode(localStorage.getItem('isAdminMode') === 'true')
-
-    // 이벤트 리스너 등록
-    const handleAdminChange = (e: any) => {
-      setIsAdminMode(e.detail)
-    }
-    window.addEventListener('adminModeChange', handleAdminChange)
-    return () => window.removeEventListener('adminModeChange', handleAdminChange)
-  }, [])
 
   const handleItemClick = (index: number) => {
     if (onItemClick) {
       onItemClick(index)
     } else {
       setSelectedImageIndex(index)
-    }
-  }
-
-  const handleEditClick = (e: React.MouseEvent, image: ImageItem) => {
-    e.stopPropagation()
-    if (onEdit) onEdit(image)
-  }
-
-  const handleDeleteClick = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation()
-    if (onDelete && confirm('정말로 삭제하시겠습니까?')) {
-      onDelete(id)
     }
   }
 
@@ -83,7 +56,7 @@ export default function ImageGrid({ images, onItemClick, onUpdate, onDelete, onE
       if (response.ok) {
         const data = await response.json()
         if (onUpdate) {
-          onUpdate(data) // 서버에서 온 전체 데이터 전달
+          onUpdate(data.activities) // 서버에서 정렬되어 온 전체 리스트로 갱신
         }
         setEditingId(null)
       } else {
@@ -117,7 +90,7 @@ export default function ImageGrid({ images, onItemClick, onUpdate, onDelete, onE
         {images.map((image, index) => (
           <div
             key={image.id}
-            className={`grid-item ${isAdminMode ? 'admin-active' : ''}`}
+            className="grid-item"
             onClick={() => handleItemClick(index)}
           >
             <div className="image-wrapper">
@@ -130,24 +103,6 @@ export default function ImageGrid({ images, onItemClick, onUpdate, onDelete, onE
                 loading="lazy"
               />
             </div>
-            {isAdminMode && (
-              <div className="admin-actions">
-                <button 
-                  className="admin-btn edit" 
-                  onClick={(e) => handleEditClick(e, image)}
-                  title="수정"
-                >
-                  ✎
-                </button>
-                <button 
-                  className="admin-btn delete" 
-                  onClick={(e) => handleDeleteClick(e, image.id)}
-                  title="삭제"
-                >
-                  ×
-                </button>
-              </div>
-            )}
             <div className="image-overlay">
               {editingId === image.id ? (
                 <input
