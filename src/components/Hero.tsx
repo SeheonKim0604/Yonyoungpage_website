@@ -193,7 +193,7 @@ export default function Hero() {
 
         {exhibitionImages.length > 1 && (
           <div className="hero-indicators">
-            {exhibitionImages.map((_, index: number) => (
+            {exhibitionImages.map((_: any, index: number) => (
               <button
                 key={index}
                 className={index === currentImageIndex ? 'active' : ''}
