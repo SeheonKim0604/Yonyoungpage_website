@@ -5,6 +5,8 @@ import Image from 'next/image'
 import UploadModal from '@/components/UploadModal'
 import './Exhibitions.css'
 
+export const dynamic = 'force-dynamic'
+
 export default function Exhibitions() {
   const [exhibitions, setExhibitions] = useState<any[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -109,8 +111,13 @@ export default function Exhibitions() {
       })
 
       if (response.ok) {
+        const result = await response.json()
         alert('삭제되었습니다.')
-        fetchData()
+        if (result.list) {
+          setExhibitions(result.list)
+        } else {
+          fetchData()
+        }
       } else {
         alert('삭제 실패')
       }
@@ -151,8 +158,13 @@ export default function Exhibitions() {
       })
 
       if (response.ok) {
+        const result = await response.json()
         alert(id ? '전시 정보가 수정되었습니다!' : '전시 정보가 성공적으로 추가되었습니다!')
-        fetchData()
+        if (result.list) {
+          setExhibitions(result.list)
+        } else {
+          fetchData()
+        }
         setIsModalOpen(false)
         setEditingExhibition(null)
       } else {
