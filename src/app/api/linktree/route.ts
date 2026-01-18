@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action, link, id, oldName } = body
     
+    let dbError = null;
+
     if (action === 'add') {
       const { error } = await supabase
         .from('linktree')
@@ -14,7 +16,7 @@ export async function POST(request: NextRequest) {
           url: link.url,
           category: link.category
         })
-      if (error) throw error
+      dbError = error
     } 
     else if (action === 'edit') {
       const { error } = await supabase
@@ -24,15 +26,24 @@ export async function POST(request: NextRequest) {
           url: link.url,
           category: link.category
         })
-        .or(`id.eq.${id || link.id},name.eq.${oldName}`)
-      if (error) throw error
+        .or(`id.eq.${id || link.id || 0},name.eq.${oldName || ''}`)
+      dbError = error
     }
     else if (action === 'delete') {
       const { error } = await supabase
         .from('linktree')
         .delete()
-        .or(`id.eq.${id},name.eq.${oldName}`)
-      if (error) throw error
+        .or(`id.eq.${id || 0},name.eq.${oldName || ''}`)
+      dbError = error
+    }
+
+    if (dbError) {
+      console.error('Database Error:', dbError)
+      return NextResponse.json({ 
+        error: `DB 오류: ${dbError.message}`, 
+        details: dbError.details,
+        hint: dbError.hint 
+      }, { status: 500 })
     }
 
     // 작업 완료 후 최신 전체 리스트 조회
@@ -44,8 +55,8 @@ export async function POST(request: NextRequest) {
     if (fetchError) throw fetchError
 
     return NextResponse.json({ success: true, linktree: data || [] })
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Error:', error)
-    return NextResponse.json({ error: '작업 중 오류가 발생했습니다.' }, { status: 500 })
+    return NextResponse.json({ error: `서버 오류: ${error.message}` }, { status: 500 })
   }
 }
