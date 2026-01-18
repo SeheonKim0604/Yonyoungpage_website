@@ -32,7 +32,7 @@ export async function GET(
     const { data, error } = await supabase
       .from(table)
       .select('*')
-      .order(table === 'photographers' ? 'generation' : 'id', { ascending: false })
+      .order('id', { ascending: false }) // 모든 데이터를 ID(타임스탬프) 최신순으로 정렬
 
     if (error) throw error
 
@@ -51,15 +51,22 @@ export async function GET(
           acc.push(group)
         }
         group.members.push({
+          id: curr.id,
           name: curr.name,
           type: curr.role,
           mainPhoto: curr.image,
           instagram: curr.instagram,
-          generation: curr.generation
+          generation: curr.generation,
+          works: curr.works || [] // 누락되었던 작품 데이터 추가
         })
         return acc
       }, [])
-      finalData = grouped
+      // 기수 정렬 (숫자 추출하여 내림차순)
+      finalData = grouped.sort((a: any, b: any) => {
+        const genA = parseInt(a.generation.replace(/[^0-9]/g, '')) || 0;
+        const genB = parseInt(b.generation.replace(/[^0-9]/g, '')) || 0;
+        return genB - genA;
+      });
     }
 
     return NextResponse.json(finalData, {

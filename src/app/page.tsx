@@ -36,7 +36,7 @@ export default async function Home() {
       <Hero />
       <section className={styles.previewSection}>
         <div className="container">
-          <h2>최신 활동</h2>
+          <h2 className={styles.sectionTitle}>latest news</h2>
           <div className={styles.previewGrid}>
             {previewActivities.map((activity: Activity) => (
               <Link key={activity.id} href={`/archive/records/${activity.id}`} className={styles.previewItem}>
