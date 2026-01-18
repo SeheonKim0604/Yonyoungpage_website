@@ -21,7 +21,7 @@
   color: var(--primary-color);
   z-index: 3;
   width: 100%;
-  transform: translateY(110px); /* 텍스트 위치 20px 추가 상향 조정 (130px -> 110px) */
+  transform: translateY(60px); /* 텍스트 위치 50px 추가 상향 조정 (110px -> 60px) */
 }
 
 .hero-content h1 {
@@ -44,7 +44,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(calc(-50% + 300px), calc(-50% - 170px)); /* 기존 -200px에서 하단으로 30px 이동하여 -170px */
+  transform: translate(calc(-50% + 300px), calc(-50% - 130px)); /* 기존 -170px에서 하단으로 40px 이동하여 -130px */
   width: 400px;
   height: 400px;
   z-index: 1;
