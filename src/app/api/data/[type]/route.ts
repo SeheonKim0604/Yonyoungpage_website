@@ -41,7 +41,14 @@ export async function GET(
     if (type === 'activities') {
       finalData = data.map((item: any) => ({
         ...item,
-        coverImage: item.cover_image
+        coverImage: item.cover_image || item.cover_image, // 대소문자 모두 대응
+        image: item.cover_image // 혹시 모를 image 필드 대응
+      }))
+    } else if (type === 'exhibitions') {
+      finalData = data.map((item: any) => ({
+        ...item,
+        coverImage: item.image, // 전시회는 image가 메인
+        image: item.image
       }))
     } else if (type === 'photographers') {
       const grouped = data.reduce((acc: any[], curr: any) => {
