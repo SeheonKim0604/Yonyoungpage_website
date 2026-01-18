@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -24,18 +26,18 @@ export async function POST(request: NextRequest) {
           url: link.url,
           category: link.category
         })
-        .or(`id.eq.${id || link.id || 0},name.eq.${oldName || ''}`)
+        .match(id ? { id } : { name: oldName })
       if (error) throw error
     }
     else if (action === 'delete') {
       const { error } = await supabase
         .from('linktree')
         .delete()
-        .or(`id.eq.${id || 0},name.eq.${oldName || ''}`)
+        .match(id ? { id } : { name: oldName })
       if (error) throw error
     }
 
-    // 작업 완료 후 최신 전체 리스트 조회 (정렬 순서 통일: id 오름차순)
+    // 작업 완료 후 최신 전체 리스트 조회
     const { data, error: fetchError } = await supabase
       .from('linktree')
       .select('id, name, url, category')
