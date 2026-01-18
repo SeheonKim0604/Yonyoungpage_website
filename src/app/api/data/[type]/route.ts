@@ -31,8 +31,8 @@ export async function GET(
 
     const { data, error } = await supabase
       .from(table)
-      .select('*')
-      .order('id', { ascending: false }) // 모든 데이터를 ID(타임스탬프) 최신순으로 정렬
+      .select(type === 'linktree' ? 'id, name, url, category' : '*')
+      .order('id', { ascending: type === 'linktree' ? true : false }) 
 
     if (error) throw error
 
