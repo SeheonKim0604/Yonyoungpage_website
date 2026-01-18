@@ -12,7 +12,8 @@ export default function Linktree() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [linkToDelete, setLinkToDelete] = useState<any>(null)
-  const [editingLink, setEditingMember] = useState<any>(null)
+  const [editingLink, setEditingLink] = useState<any>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
   // 폼 상태
   const [formData, setFormData] = useState({
@@ -56,13 +57,13 @@ export default function Linktree() {
   }, [])
 
   const openAddModal = () => {
-    setEditingMember(null)
+    setEditingLink(null)
     setFormData({ name: '', url: '', category: 'promotion' })
     setIsFormModalOpen(true)
   }
 
   const openEditModal = (link: any) => {
-    setEditingMember(link)
+    setEditingLink(link)
     setFormData({ 
       name: link.name, 
       url: link.url, 
@@ -78,6 +79,11 @@ export default function Linktree() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
+    
+    console.log('Submitting form...', { formData, editingLink })
+    setIsSubmitting(true)
+
     const action = editingLink ? 'edit' : 'add'
     
     try {
@@ -94,14 +100,21 @@ export default function Linktree() {
 
       if (res.ok) {
         const result = await res.json()
+        console.log('Server response:', result)
         if (result.linktree) {
           setLinks(result.linktree)
         }
         setIsFormModalOpen(false)
         alert(action === 'add' ? '링크가 추가되었습니다.' : '링크가 수정되었습니다.')
+      } else {
+        const errorData = await res.json()
+        throw new Error(errorData.error || '저장에 실패했습니다.')
       }
-    } catch (error) {
-      alert('오류가 발생했습니다.')
+    } catch (error: any) {
+      console.error('Submit error:', error)
+      alert(error.message || '오류가 발생했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -215,11 +228,11 @@ export default function Linktree() {
               <div className="form-group">
                 <label>링크 URL</label>
                 <input 
-                  type="url" 
+                  type="text" 
                   required 
                   value={formData.url} 
                   onChange={e => setFormData({...formData, url: e.target.value})}
-                  placeholder="https://..."
+                  placeholder="예: https://instagram.com/..."
                 />
               </div>
               <div className="form-group">
@@ -236,8 +249,10 @@ export default function Linktree() {
               </div>
 
               <div className="form-actions">
-                <button type="button" onClick={() => setIsFormModalOpen(false)}>취소</button>
-                <button type="submit" className="submit-btn">저장</button>
+                <button type="button" onClick={() => setIsFormModalOpen(false)} disabled={isSubmitting}>취소</button>
+                <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                  {isSubmitting ? '저장 중...' : '저장'}
+                </button>
               </div>
             </form>
           </div>
